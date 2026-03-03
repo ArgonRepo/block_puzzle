@@ -10,8 +10,6 @@ class canvas {
         this.height = height;
     }
 
-    //	this.selector.addEventListener('click', event => this.onMouseClick(event));
-
     initCanvas(width, height) {
         // Set display size (css pixels).  
         this.canvas.style.width = width + 'px';
@@ -30,11 +28,7 @@ class canvas {
         // Clear previous drawing.
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        //this.ctx.strokeStyle = 'rgba(200, 200, 200, 1)';
-        //this.ctx.lineWidth = 3;
-        //this.ctx.font = '28px sans-serif'
-        //this.ctx.textAlign = 'center'
-        //this.ctx.textBaseline = 'top'
+
     }
 
     setPosition(x, y, zIndex) {
@@ -49,12 +43,6 @@ class canvas {
     }
 
     drawRoundedRect(x, y, width, height, radius, color) {
-        // 先绘制一个普通的矩形  
-        //context.beginPath();  
-        //context.rect(x, y, width, height);  
-        //context.closePath();  
-
-        // 绘制圆角  
         this.ctx.beginPath();
         this.ctx.moveTo(x + radius, y);
         this.ctx.lineTo(x + width - radius, y);

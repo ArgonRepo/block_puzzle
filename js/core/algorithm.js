@@ -4,16 +4,16 @@ function initXY() {
     var n, t, i;
     for (let r = 0; r < 512; r++) {
         let u = {
-                1: 0,
-                2: 0,
-                3: 0,
-                4: 0,
-                5: 0,
-                6: 0,
-                7: 0,
-                8: 0,
-                9: 0
-            },
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0,
+            7: 0,
+            8: 0,
+            9: 0
+        },
             e = 0,
             f = r;
         n = 0;
@@ -28,16 +28,16 @@ function initZ() {
     var i, r, n, f, e, o, t, u;
     for (let s = 0; s < 512; s++) {
         let h = {
-                1: 0,
-                2: 0,
-                3: 0,
-                4: 0,
-                5: 0,
-                6: 0,
-                7: 0,
-                8: 0,
-                9: 0
-            },
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0,
+            7: 0,
+            8: 0,
+            9: 0
+        },
             c = 0;
         r = [
             [],
@@ -46,7 +46,7 @@ function initZ() {
         ];
         n = s;
         for (let t = 8; t >= 0; t--) f = n % 2, n = Math.floor(n / 2), e = Math.floor(t / 3), o = t % 3, r[e][o] = f;
-        t = function(n, u) {
+        t = function (n, u) {
             let f = 0;
             return n < GAME_INFO.BOARD_BLOCK_SET_WIDTH && u < GAME_INFO.BOARD_BLOCK_SET_WIDTH && !i[n * GAME_INFO.BOARD_BLOCK_SET_WIDTH + u] && r[n][u] && (i[n * GAME_INFO.BOARD_BLOCK_SET_WIDTH + u] = !0, f = 1 + t(n + 1, u) + t(n, u + 1)), f
         };
@@ -138,7 +138,6 @@ class slover {
             b: 6.17,
             c: 5.85,
             d: 3.9,
-            e: -5.37,
             f: 3.53,
             g: -5.76,
             h: -.66
@@ -259,7 +258,7 @@ class slover {
         };
         i = [];
         for (let t = 0; t < GAME_INFO.BOARD_SIZE_BLOCK * GAME_INFO.BOARD_SIZE_BLOCK; t++) n.divCount[t + 1] = 0, i.push(!1);
-        t = function(n, r, u) {
+        t = function (n, r, u) {
             let f = 0,
                 e = u * GAME_INFO.BOARD_SIZE_BLOCK + r;
             return u < GAME_INFO.BOARD_SIZE_BLOCK && r < GAME_INFO.BOARD_SIZE_BLOCK && !i[e] && n[u][r] && (i[e] = !0, f = 1 + t(n, r + 1, u) + t(n, r, u + 1) + t(n, r + 1, u + 1)), f
@@ -272,8 +271,8 @@ class slover {
         return n.divValue /= GAME_INFO.BOARD_SIZE_BLOCK * GAME_INFO.BOARD_SIZE_BLOCK * 45, n.divValue = Math.round(n.divValue * 100) / 100, n
     }
     evaluateStatus() {
-        let n = this.chromosome.a * this.getX_fast() + this.chromosome.b * this.getY_fast() + this.chromosome.c * this.getZ_fast();
-        return +this.chromosome.d * this.getW() + this.chromosome.f + this.chromosome.g * this.getT() + this.chromosome.h * this.getS().divValue, Math.abs(n)
+        let n = this.chromosome.a * this.getX_fast() + this.chromosome.b * this.getY_fast() + this.chromosome.c * this.getZ_fast() + this.chromosome.d * this.getW() + this.chromosome.f + this.chromosome.g * this.getT() + this.chromosome.h * this.getS().divValue;
+        return Math.abs(n)
     }
 }
 initXY();

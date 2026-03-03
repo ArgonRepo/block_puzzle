@@ -21,11 +21,11 @@ function clone(n) {
     if (typeof n == "object")
         if (n === null) t = null;
         else if (n instanceof Array)
-        for (t = [], i = 0, u = n.length; i < u; i++) t.push(clone(n[i]));
-    else {
-        t = Object.create(n);
-        for (r in n) t[r] = clone(n[r])
-    } else t = n;
+            for (t = [], i = 0, u = n.length; i < u; i++) t.push(clone(n[i]));
+        else {
+            t = {};
+            for (r in n) if (n.hasOwnProperty(r)) t[r] = clone(n[r])
+        } else t = n;
     return t
 }
 

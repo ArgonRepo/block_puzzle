@@ -1,61 +1,7 @@
 'use strict';
 
 document.getElementById('addTimes').addEventListener('click', function () {
-    //document.getElementById('mask_layer').style.display = 'block'; // 显示遮罩层
-    //document.getElementById('couponCode').value = ''; // 清空输入框
     showPiggyAlert("功能暂未实现");
-});
-
-document.getElementById('submitCoupon').addEventListener('click', function () {
-    var couponCode = document.getElementById('couponCode').value;
-    if (couponCode) {
-        // 发送AJAX POST请求到后台验证券码
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/your-backend-url", true); // 替换为你的后端处理URL
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                // 根据返回的JSON信息处理结果
-                if (response.valid) {
-                    // 券码有效，更新次数或执行其他操作
-                    showPiggyAlert('券码有效，增加了' + response.extraTimes + '次');
-                } else {
-                    // 券码无效或已过期等错误处理
-                    showPiggyAlert('券码无效或已过期');
-                }
-            } else {
-                // 请求完成但返回了错误的状态码
-                showPiggyAlert('请求失败，服务器返回状态码：' + xhr.status);
-            }
-            // 关闭遮罩层
-            document.getElementById('mask_layer').style.display = 'none';
-        };
-
-        xhr.onerror = function () {
-            // 网络错误或其他问题导致请求失败
-            showPiggyAlert('网络错误，请求未能完成。');
-            // 关闭遮罩层
-            document.getElementById('mask_layer').style.display = 'none';
-        };
-
-        xhr.ontimeout = function () {
-            // 请求超时
-            showPiggyAlert('请求超时，请检查您的网络连接。');
-            // 关闭遮罩层
-            document.getElementById('mask_layer').style.display = 'none';
-        };
-
-        // 设置请求超时时间（例如，5秒）
-        xhr.timeout = 5000;
-        var value = { code: couponCode, userId: piggy.uid };
-        console.log(JSON.stringify(value));
-        xhr.send(encodeURIComponent(JSON.stringify(value))); // 发送券码到后台
-    } else {
-        alert('请输入券码');
-        // 不需要关闭遮罩层，因为用户可能需要重新输入
-    }
 });
 
 function setDivProperties(id, zIndex, isVisible, position, x, y) {
@@ -275,7 +221,6 @@ function onSelectButtonPress() {
 
 var streak = 0;
 var score = 0;
-var haveShowDonate = false;
 
 function onStepButtonPress() {
     if (curStep < bestSolution.step.length) {
@@ -286,10 +231,7 @@ function onStepButtonPress() {
         let count = solv.checkAndEliminate();
         score += GetScore(step.shape, count, streak);
         document.getElementById('score').innerHTML = "score: " + score.toString();
-        if (score >= 16000 && !haveShowDonate) {
-            haveShowDonate = true;
-            window.open("../support/donate.html", "捐赠", "width=640,height=800");
-        }
+
 
         if (count > 0)
             streak++;
@@ -346,8 +288,7 @@ function ShowStatus(string) {
     document.getElementById('status').innerHTML = string;
 }
 
-//ShowStatus("请选择本轮所用3个图案");
-//   selectButton.disabled = true;
+
 
 function updateButtonStatus() {
     switch (boardStatus) {
@@ -378,17 +319,7 @@ function onEditButtonPress() {
     ShowStatus("请使用鼠标设置盘面, 完成后点‘选好了’按钮");
     selectcanvas.enable = false;
     outCanvas.enableEdit(true);
-    haveShowDonate = false;
     if (boardStatus !== c_BoardStatus.START)
         boardStatus = c_BoardStatus.EDIT;
     updateButtonStatus();
 }
-//let counter = document.querySelector('#counter');
-
-//const isMobile = /(iPhone|iPad|iPod|iOS|Android|Linux armv8l|Linux armv7l|Linux aarch64)/i.test(navigator.platform);
-//let windowRadio = window.innerWidth / window.innerHeight;
-//if (isMobile)
-//    document.body.style.zoom = 2;
-//else
-//    document.body.style.zoom = 1;
-

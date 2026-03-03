@@ -131,7 +131,3 @@ class roundShape extends canvas {
             }
     }
 }
-xyMap = [];
-initXY();
-zMap = [];
-initZ();
