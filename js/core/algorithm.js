@@ -107,7 +107,7 @@ function dfs(n, t, i, r, u) {
                 h.strik = a;
                 h.score += GetScore(f, l, u.strik);
                 dfs(c, t, i + 1, r, h)
-            } e || u.step.length > r.step.length && bestSolutionCheck(r, u, n)
+            } e || u.step.length >= r.step.length && bestSolutionCheck(r, u, n)
 }
 
 function putShapes(n, t, i) {
@@ -140,7 +140,10 @@ class slover {
             d: 3.9,
             f: 3.53,
             g: -5.76,
-            h: -.66
+            h: -.66,
+            i: -4.5,
+            j: -3.2,
+            k: 2.8
         }
     }
     clone() {
@@ -250,6 +253,68 @@ class slover {
         for (let t = 0; t < GAME_INFO.BOARD_SIZE_BLOCK; t++) n += this.canEliminateBlockSet(t) ? 1 : 0, n += this.canEliminateRow(t) ? 1 : 0, n += this.canEliminateCol(t) ? 1 : 0;
         return n /= 3 * GAME_INFO.BOARD_SIZE_BLOCK, Math.round(n * 100) / 100
     }
+    getNearT() {
+        let score = 0;
+        const S = GAME_INFO.BOARD_SIZE_BLOCK;
+        for (let r = 0; r < S; r++) {
+            let filled = 0;
+            for (let c = 0; c < S; c++) filled += this.board[r][c];
+            if (filled >= S - 2 && filled < S) score += filled / S;
+        }
+        for (let c = 0; c < S; c++) {
+            let filled = 0;
+            for (let r = 0; r < S; r++) filled += this.board[r][c];
+            if (filled >= S - 2 && filled < S) score += filled / S;
+        }
+        for (let br = 0; br < S; br += 3)
+            for (let bc = 0; bc < S; bc += 3) {
+                let filled = 0;
+                for (let r = 0; r < 3; r++)
+                    for (let c = 0; c < 3; c++) filled += this.board[br + r][bc + c];
+                if (filled >= 7 && filled < 9) score += filled / 9;
+            }
+        return Math.round(score / (3 * S) * 100) / 100
+    }
+    getAccommodability() {
+        let total = 0;
+        const S = GAME_INFO.BOARD_SIZE_BLOCK;
+        for (let si = 0; si < shapes.length; si++) {
+            const sh = shapes[si];
+            let canFit = false;
+            for (let r = 0; r <= S - sh.h && !canFit; r++)
+                for (let c = 0; c <= S - sh.w && !canFit; c++)
+                    if (this.canPutAt(c, r, sh)) canFit = true;
+            if (canFit) total++;
+        }
+        return Math.round(total / shapes.length * 100) / 100
+    }
+    getEmptyConnectivity() {
+        const S = GAME_INFO.BOARD_SIZE_BLOCK;
+        const visited = [];
+        for (let i = 0; i < S * S; i++) visited.push(false);
+        let regionCount = 0, maxRegion = 0;
+        const floodFill = (r, c) => {
+            if (r < 0 || r >= S || c < 0 || c >= S) return 0;
+            const idx = r * S + c;
+            if (visited[idx] || this.board[r][c] === 1) return 0;
+            visited[idx] = true;
+            return 1 + floodFill(r - 1, c) + floodFill(r + 1, c) + floodFill(r, c - 1) + floodFill(r, c + 1);
+        };
+        for (let r = 0; r < S; r++)
+            for (let c = 0; c < S; c++)
+                if (!visited[r * S + c] && this.board[r][c] === 0) {
+                    let size = floodFill(r, c);
+                    regionCount++;
+                    if (size > maxRegion) maxRegion = size;
+                }
+        // 理想状态：1个大连通区域。碎片越多越差。
+        // 返回值越高越好（接近1表示空间集中在一个大区域）
+        let totalEmpty = 0;
+        for (let r = 0; r < S; r++)
+            for (let c = 0; c < S; c++) totalEmpty += (1 - this.board[r][c]);
+        if (totalEmpty === 0) return 0;
+        return Math.round(maxRegion / totalEmpty * 100) / 100
+    }
     getS() {
         var i, t, r;
         let n = {
@@ -271,7 +336,16 @@ class slover {
         return n.divValue /= GAME_INFO.BOARD_SIZE_BLOCK * GAME_INFO.BOARD_SIZE_BLOCK * 45, n.divValue = Math.round(n.divValue * 100) / 100, n
     }
     evaluateStatus() {
-        let n = this.chromosome.a * this.getX_fast() + this.chromosome.b * this.getY_fast() + this.chromosome.c * this.getZ_fast() + this.chromosome.d * this.getW() + this.chromosome.f + this.chromosome.g * this.getT() + this.chromosome.h * this.getS().divValue;
+        let n = this.chromosome.a * this.getX_fast()
+            + this.chromosome.b * this.getY_fast()
+            + this.chromosome.c * this.getZ_fast()
+            + this.chromosome.d * this.getW()
+            + this.chromosome.f
+            + this.chromosome.g * this.getT()
+            + this.chromosome.h * this.getS().divValue
+            + this.chromosome.i * this.getNearT()
+            + this.chromosome.j * this.getAccommodability()
+            + this.chromosome.k * this.getEmptyConnectivity();
         return Math.abs(n)
     }
 }
