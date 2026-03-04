@@ -44,10 +44,10 @@ class shapeSelector extends canvas {
         this.roundSelected = []
     }
     findShapeAtPos(n, t) {
-        for (var i = 0; i < this.shapePos.length; i++) {
-            let r = this.shapePos[i];
-            if (this.isPointInRectangle(r.x, r.y, r.width, r.height, n, t)) return r
-        }
+        let col = Math.floor(n / this.shapeSize);
+        let row = Math.floor(t / this.shapeSize);
+        let index = row * this.lineCount + col;
+        if (index >= 0 && index < this.shapePos.length) return this.shapePos[index];
         return null
     }
     onMouseClick(n) {
