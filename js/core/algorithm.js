@@ -71,9 +71,12 @@ function initZ() {
     }
 }
 
+const STREAK_VALUE = 10;
 function bestSolutionCheck(n, t, i) {
-    if (n.step.length === 0 || t.score > n.score || t.score === n.score && t.strik > n.strik) Object.assign(n, t), n.statusScore = i.evaluateStatus();
-    else if (t.score === n.score && t.strik === n.strik) {
+    let tVal = t.score + t.strik * STREAK_VALUE;
+    let nVal = n.score + n.strik * STREAK_VALUE;
+    if (n.step.length === 0 || tVal > nVal) Object.assign(n, t), n.statusScore = i.evaluateStatus();
+    else if (tVal === nVal) {
         let r = i.evaluateStatus();
         n.statusScore > r && (Object.assign(n, t), n.statusScore = r)
     }
@@ -143,7 +146,8 @@ class slover {
             h: -.66,
             i: -4.5,
             j: -3.2,
-            k: 2.8
+            k: 2.8,
+            l: -3.0
         }
     }
     clone() {
@@ -275,6 +279,39 @@ class slover {
             }
         return Math.round(score / (3 * S) * 100) / 100
     }
+    getCrossEliminationPotential() {
+        const S = GAME_INFO.BOARD_SIZE_BLOCK;
+        let potential = 0;
+        const rowFill = [], colFill = [], blkFill = [];
+        for (let r = 0; r < S; r++) {
+            let f = 0;
+            for (let c = 0; c < S; c++) f += this.board[r][c];
+            rowFill.push(f);
+        }
+        for (let c = 0; c < S; c++) {
+            let f = 0;
+            for (let r = 0; r < S; r++) f += this.board[r][c];
+            colFill.push(f);
+        }
+        for (let br = 0; br < S; br += 3)
+            for (let bc = 0; bc < S; bc += 3) {
+                let f = 0;
+                for (let r = 0; r < 3; r++)
+                    for (let c = 0; c < 3; c++) f += this.board[br + r][bc + c];
+                blkFill.push(f);
+            }
+        for (let r = 0; r < S; r++)
+            for (let c = 0; c < S; c++) {
+                if (this.board[r][c] === 1) continue;
+                let rF = rowFill[r] / S;
+                let cF = colFill[c] / S;
+                let bI = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+                let bF = blkFill[bI] / 9;
+                let count = (rF >= 7 / 9 ? 1 : 0) + (cF >= 7 / 9 ? 1 : 0) + (bF >= 7 / 9 ? 1 : 0);
+                if (count >= 2) potential += rF * cF * bF;
+            }
+        return Math.round(potential / (S * S) * 100) / 100
+    }
     getAccommodability() {
         let total = 0;
         const S = GAME_INFO.BOARD_SIZE_BLOCK;
@@ -345,7 +382,8 @@ class slover {
             + this.chromosome.h * this.getS().divValue
             + this.chromosome.i * this.getNearT()
             + this.chromosome.j * this.getAccommodability()
-            + this.chromosome.k * this.getEmptyConnectivity();
+            + this.chromosome.k * this.getEmptyConnectivity()
+              + this.chromosome.l * this.getCrossEliminationPotential();
         return Math.abs(n)
     }
 }
