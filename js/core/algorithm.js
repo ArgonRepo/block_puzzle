@@ -136,19 +136,16 @@ class slover {
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0]
         ];
-        this.chromosome = {
-            a: 5.44,
-            b: 6.17,
-            c: 5.85,
-            d: 3.9,
-            f: 3.53,
-            g: -5.76,
-            h: -.66,
-            i: -4.5,
-            j: -3.2,
-            k: 2.8,
-            l: -3.0
-        }
+        // 前期权重：侧重得分、streak，空间充裕不需过度保守
+        this.earlyWeights = {
+            a: 5.44, b: 6.17, c: 5.85, d: 3.9, f: 3.53,
+            g: -5.76, h: -.66, i: -3.0, j: -1.5, k: 1.5, l: -2.0
+        };
+        // 后期权重：侧重生存，极度重视消除、连通性、容纳度
+        this.lateWeights = {
+            a: 8.0, b: 9.0, c: 8.5, d: 2.0, f: 3.53,
+            g: -12.0, h: -1.5, i: -9.0, j: -8.0, k: 6.0, l: -6.0
+        };
     }
     clone() {
         for (var t = new slover, n = 0; n < GAME_INFO.BOARD_SIZE_BLOCK; n++) t.board[n] = this.board[n].slice();
@@ -373,17 +370,23 @@ class slover {
         return n.divValue /= GAME_INFO.BOARD_SIZE_BLOCK * GAME_INFO.BOARD_SIZE_BLOCK * 45, n.divValue = Math.round(n.divValue * 100) / 100, n
     }
     evaluateStatus() {
-        let n = this.chromosome.a * this.getX_fast()
-            + this.chromosome.b * this.getY_fast()
-            + this.chromosome.c * this.getZ_fast()
-            + this.chromosome.d * this.getW()
-            + this.chromosome.f
-            + this.chromosome.g * this.getT()
-            + this.chromosome.h * this.getS().divValue
-            + this.chromosome.i * this.getNearT()
-            + this.chromosome.j * this.getAccommodability()
-            + this.chromosome.k * this.getEmptyConnectivity()
-              + this.chromosome.l * this.getCrossEliminationPotential();
+        let density = this.getW();
+        // 线性插值：density 0→前期权重, density 1→后期权重
+        let w = {};
+        for (let key in this.earlyWeights) {
+            w[key] = this.earlyWeights[key] * (1 - density) + this.lateWeights[key] * density;
+        }
+        let n = w.a * this.getX_fast()
+            + w.b * this.getY_fast()
+            + w.c * this.getZ_fast()
+            + w.d * density
+            + w.f
+            + w.g * this.getT()
+            + w.h * this.getS().divValue
+            + w.i * this.getNearT()
+            + w.j * this.getAccommodability()
+            + w.k * this.getEmptyConnectivity()
+            + w.l * this.getCrossEliminationPotential();
         return Math.abs(n)
     }
 }
